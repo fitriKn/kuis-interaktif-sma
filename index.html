@@ -1,550 +1,1340 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="dark">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KUIS INTERAKTIF — Belajar • Bermain • Menjawab</title>
+  <title>INFORMATICS ARCADE HUB — Mini-Games & Classroom Quiz</title>
   <meta name="description"
-    content="Aplikasi web kuis interaktif kelas SMA berbasis game show untuk proyeksi proyektor/infocus.">
+    content="Platform game arcade & kuis interaktif Informatika SMA berbasis proyektor untuk pembelajaran kelas yang menyenangkan.">
+  
+  <!-- Google Fonts: Orbitron for Neon Cyber, Press Start 2P for Retro Arcade, Inter for Clean UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Orbitron:wght@600;800;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+  
+  <!-- SheetJS CDN for Excel Import/Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- SheetJS for Excel Export -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            cyber: {
+              dark: '#090d16',
+              card: '#111827',
+              neonCyan: '#06b6d4',
+              neonPink: '#ec4899',
+              neonPurple: '#a855f7',
+              neonYellow: '#eab308',
+              neonGreen: '#10b981'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            cyber: ['Orbitron', 'sans-serif'],
+            arcade: ['"Press Start 2P"', 'cursive']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Custom Neon Cyberpunk Styling -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body>
+<body class="bg-cyber-dark text-slate-100 font-sans min-h-screen flex flex-col selection:bg-cyan-500 selection:text-black overflow-x-hidden">
 
   <!-- Confetti Particle Canvas -->
-  <canvas id="confetti-canvas"></canvas>
+  <canvas id="confetti-canvas" class="pointer-events-none fixed inset-0 z-50"></canvas>
 
   <!-- Toast Notification Container -->
-  <div id="toast-container" class="toast-container"></div>
+  <div id="toast-container" class="toast-container fixed top-5 right-5 z-50 flex flex-col gap-2"></div>
 
-  <!-- App Wrapper -->
-  <div id="app-container">
+  <!-- Main App Wrapper -->
+  <div id="led-flash-overlay" class="hidden"></div>
+  <div id="app-container" class="flex flex-col min-h-screen">
 
-    <!-- Top Navigation Bar -->
-    <header class="navbar">
-      <div class="nav-brand" data-view="view-home">
-        <span class="nav-logo">🎡</span>
-        <div class="brand-text">
-          <h1>KUIS INTERAKTIF</h1>
-          <p>Belajar • Bermain • Menjawab</p>
-        </div>
-      </div>
-
-      <nav class="nav-menu">
-        <button class="nav-btn active" data-view="view-home">🏠 Home</button>
-        <button class="nav-btn" data-view="view-game">🎮 Kuis</button>
-        <button class="nav-btn" data-view="view-students">👥 Siswa</button>
-        <button class="nav-btn" data-view="view-questions">📚 Soal</button>
-        <button class="nav-btn" data-view="view-leaderboard">🏆 Skor</button>
-        <button class="nav-btn" data-view="view-settings">⚙ Pengaturan</button>
-      </nav>
-
-      <div class="nav-controls">
-        <button id="btn-fullscreen-toggle" class="control-icon-btn" title="Toggle Fullscreen Mode (Infocus)">
-          📺
-        </button>
-        <div class="offline-badge" title="Aplikasi berjalan 100% offline di browser lokal">
-          <span class="offline-dot"></span>
-          <span>Offline Mode</span>
-        </div>
-      </div>
-    </header>
-
-    <!-- Main Container Panel -->
-    <main class="main-content">
-
-      <!-- ===================================================================
-           VIEW 1: HOME SCREEN
-           =================================================================== -->
-      <section id="view-home" class="view-panel active">
-        <div class="home-hero">
-          <div class="hero-icon-wrapper">
-            <span class="hero-icon">🎡</span>
+    <!-- Top Neon Navigation Bar -->
+    <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-cyan-500/40 shadow-[0_4px_20px_rgba(6,182,212,0.2)] px-4 py-3">
+      <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+        
+        <!-- Logo & Brand -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="switchView('view-home')">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-fuchsia-600 flex items-center justify-center text-xl shadow-[0_0_15px_rgba(6,182,212,0.5)] animate-pulse">
+            🕹️
           </div>
-          <h1 class="hero-title">KUIS INTERAKTIF</h1>
-          <div class="hero-tagline">Belajar • Bermain • Menjawab</div>
-          <p class="hero-desc">Permainan kuis interaktif untuk pembelajaran di kelas!</p>
+          <div>
+            <h1 class="font-cyber text-lg sm:text-xl font-extrabold tracking-wider bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-yellow-400 bg-clip-text text-transparent drop-shadow-[0_0_10px_rgba(6,182,212,0.6)]">
+              INFORMATICS ARCADE HUB
+            </h1>
+            <p class="text-xs text-slate-400 font-medium">SMA Interactive Game Platform</p>
+          </div>
+        </div>
 
-          <button id="btn-start-quiz" class="btn-start-game">
-            <span>▶ MULAI KUIS</span>
+        <!-- Active Class Pill & Dynamic Counter -->
+        <div class="hidden md:flex items-center gap-3 bg-slate-800/90 border border-slate-700 rounded-full px-4 py-1.5 text-xs font-semibold">
+          <span class="text-cyan-400">🏫 KELAS:</span>
+          <span id="nav-active-class-name" class="text-yellow-400 font-bold">Kelas X-A</span>
+          <span class="text-slate-500">|</span>
+          <span id="nav-students-count" class="text-slate-300">Total 0 Siswa Terdaftar</span>
+        </div>
+
+        <!-- Top Right Actions -->
+        <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+          
+          <!-- Leaderboard Quick Link -->
+          <button onclick="switchView('view-leaderboard')" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-amber-300 text-xs font-bold transition flex items-center gap-1.5">
+            🏆 Skor Kelas
+          </button>
+
+          <!-- Persistent Global Reset Session Button -->
+          <button onclick="resetClassSessionConfirm()" class="px-3 py-1.5 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-600/50 text-rose-300 text-xs font-bold transition flex items-center gap-1.5" title="Reset skor & posisi tanpa menghapus data siswa/soal">
+            🔄 Reset Sesi
+          </button>
+
+          <!-- Persistent Teacher Administration CRUD Panel Button -->
+          <button id="btn-open-teacher-dashboard" onclick="openTeacherDashboard('tab-classes')" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-600 hover:from-purple-500 hover:to-cyan-500 text-white text-xs font-black shadow-[0_0_15px_rgba(168,85,247,0.5)] transition flex items-center gap-1.5 border border-purple-400/40">
+            ⚙️ Ganti Kelas / Pengaturan Soal & Murid
+          </button>
+
+          <!-- Fullscreen Infocus Toggle -->
+          <button id="btn-fullscreen-toggle" class="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-sm transition" title="Toggle Fullscreen Mode">
+            📺
           </button>
         </div>
 
-        <div class="home-grid">
-          <div class="stat-card" onclick="switchView('view-students')">
-            <div class="stat-icon">👥</div>
-            <div class="stat-info">
-              <h3 id="stat-total-students">0</h3>
-              <p>Siswa Terdaftar</p>
-            </div>
+      </div>
+    </header>
+
+    <!-- Main Views Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 flex flex-col">
+
+      <!-- ===================================================================
+           VIEW 1: LANDING PAGE & GAME SELECTOR (Poki/Friv Style)
+           =================================================================== -->
+      <section id="view-home" class="view-panel active flex flex-col gap-6">
+        
+        <!-- Hero Neon Cyber Banner (CLEANED: Subtitle text removed) -->
+        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-purple-950/80 to-slate-900 border-2 border-cyan-500/40 p-6 sm:p-8 shadow-[0_0_30px_rgba(6,182,212,0.2)] text-center flex flex-col items-center gap-3">
+          
+          <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold tracking-widest uppercase animate-pulse">
+            ⚡ Platform Pembelajaran Informatika SMA — 100% Kontrol Guru
           </div>
 
-          <div class="stat-card" onclick="switchView('view-questions')">
-            <div class="stat-icon">📚</div>
-            <div class="stat-info">
-              <h3 id="stat-total-questions">0</h3>
-              <p>Soal di Bank Soal</p>
-            </div>
-          </div>
+          <h1 class="font-cyber text-3xl sm:text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-yellow-300 drop-shadow-[0_0_20px_rgba(6,182,212,0.8)] tracking-tight">
+            INFORMATICS ARCADE HUB
+          </h1>
 
-          <div class="stat-card" onclick="switchView('view-game')">
-            <div class="stat-icon">🎲</div>
-            <div class="stat-info">
-              <h3 id="stat-played-students">0/0</h3>
-              <p>Siswa Sudah Main</p>
-            </div>
+          <!-- Class Selector Bar in Hero -->
+          <div class="flex items-center gap-3 bg-slate-900/90 border border-slate-700/80 rounded-2xl px-5 py-2.5 shadow-lg mt-2 flex-wrap justify-center">
+            <span class="text-xs font-bold text-slate-400">PILIH KELAS AKTIF:</span>
+            <select id="hero-class-select" class="bg-slate-800 text-yellow-300 text-sm font-bold rounded-xl px-3 py-1.5 border border-slate-600 focus:outline-none focus:border-cyan-400">
+              <!-- Options populated dynamically -->
+            </select>
           </div>
         </div>
+
+        <!-- Poki/Friv Style Game Selector Grid -->
+        <div class="flex flex-col gap-3 mt-2">
+          <div class="flex items-center justify-between">
+            <h2 class="font-cyber text-lg sm:text-xl font-extrabold text-cyan-400 tracking-wide flex items-center gap-2">
+              🎮 PILIH MINI-GAME ARCADE
+            </h2>
+            <span class="text-xs text-slate-400">Klik kartu game untuk mulai bermain</span>
+          </div>
+
+          <!-- Cards Grid (Poki/Friv Style) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- GAME CARD 1: SPINNER WHEEL -->
+            <div class="game-selector-card group cursor-pointer relative overflow-hidden rounded-2xl bg-slate-900/90 border-2 border-cyan-500/30 hover:border-cyan-400 p-6 flex flex-col justify-between transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(6,182,212,0.4)]"
+                 onclick="launchGame('spinner')">
+              <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 group-hover:opacity-20 transition">🎡</div>
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <span class="w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+                    🎡
+                  </span>
+                  <span class="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30">
+                    Acak Siswa
+                  </span>
+                </div>
+                <h3 class="font-cyber text-xl font-bold text-slate-100 group-hover:text-cyan-300 transition mb-2">
+                  Spinner Wheel
+                </h3>
+                <p class="text-slate-400 text-xs leading-relaxed">
+                  Putar roda acak untuk memilih nama siswa yang tampil di depan proyektor dan beri tantangan soal Informatika!
+                </p>
+              </div>
+              <div class="mt-6 flex items-center justify-between pt-4 border-t border-slate-800">
+                <span class="text-xs text-slate-400 font-semibold">1 Player / Turn</span>
+                <span class="px-4 py-1.5 rounded-lg bg-cyan-500 text-slate-950 font-bold text-xs group-hover:bg-cyan-400 shadow-md transition">
+                  MAIN SEKARANG ▶
+                </span>
+              </div>
+            </div>
+
+            <!-- GAME CARD 2: MYSTERY BOX -->
+            <div class="game-selector-card group cursor-pointer relative overflow-hidden rounded-2xl bg-slate-900/90 border-2 border-fuchsia-500/30 hover:border-fuchsia-400 p-6 flex flex-col justify-between transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(236,72,153,0.4)]"
+                 onclick="launchGame('mystery')">
+              <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 group-hover:opacity-20 transition">🎁</div>
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <span class="w-14 h-14 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-400/40 flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(236,72,153,0.3)]">
+                    🎁
+                  </span>
+                  <span class="px-3 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-300 text-xs font-bold border border-fuchsia-500/30">
+                    24 Flip Cards
+                  </span>
+                </div>
+                <h3 class="font-cyber text-xl font-bold text-slate-100 group-hover:text-fuchsia-300 transition mb-2">
+                  Mystery Box
+                </h3>
+                <p class="text-slate-400 text-xs leading-relaxed">
+                  Grid 24 kotak misteri interaktif! Buka kotak untuk mendapat Soal (70%), Jackpot (+20 poin), atau Malware Trap (-10 poin)!
+                </p>
+              </div>
+              <div class="mt-6 flex items-center justify-between pt-4 border-t border-slate-800">
+                <span class="text-xs text-slate-400 font-semibold">Gacha / Keberuntungan</span>
+                <span class="px-4 py-1.5 rounded-lg bg-fuchsia-500 text-white font-bold text-xs group-hover:bg-fuchsia-400 shadow-md transition">
+                  MAIN SEKARANG ▶
+                </span>
+              </div>
+            </div>
+
+            <!-- GAME CARD 3: ULAR TANGGA LOGIKA -->
+            <div class="game-selector-card group cursor-pointer relative overflow-hidden rounded-2xl bg-slate-900/90 border-2 border-emerald-500/30 hover:border-emerald-400 p-6 flex flex-col justify-between transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]"
+                 onclick="launchGame('ulartangga')">
+              <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 group-hover:opacity-20 transition">🎲</div>
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <span class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(16,185,129,0.3)]">
+                    🎲
+                  </span>
+                  <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">
+                    Up to 4 Tim
+                  </span>
+                </div>
+                <h3 class="font-cyber text-xl font-bold text-slate-100 group-hover:text-emerald-300 transition mb-2">
+                  Ular Tangga Logika
+                </h3>
+                <p class="text-slate-400 text-xs leading-relaxed">
+                  Papan 10x10 (1-100) The Network Race. Lempar dadu, animasi pion bergerak per petak baru kemudian soal muncul!
+                </p>
+              </div>
+              <div class="mt-6 flex items-center justify-between pt-4 border-t border-slate-800">
+                <span class="text-xs text-slate-400 font-semibold">Kelompok / Board Game</span>
+                <span class="px-4 py-1.5 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs group-hover:bg-emerald-400 shadow-md transition">
+                  MAIN SEKARANG ▶
+                </span>
+              </div>
+            </div>
+
+            <!-- GAME CARD 4: CYBER TUG OF WAR (TARIK TAMBANG DIGITAL) -->
+            <div class="game-selector-card group cursor-pointer relative overflow-hidden rounded-2xl bg-slate-900/90 border-2 border-yellow-500/30 hover:border-yellow-400 p-6 flex flex-col justify-between transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(234,179,8,0.4)]"
+                 onclick="launchGame('tariktambang')">
+              <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 group-hover:opacity-20 transition">🤼‍♂️</div>
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <span class="w-14 h-14 rounded-2xl bg-yellow-500/20 border border-yellow-400/40 flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+                    🤼‍♂️
+                  </span>
+                  <span class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 text-xs font-bold border border-yellow-500/30">
+                    20s Timer LED Quiz
+                  </span>
+                </div>
+                <h3 class="font-cyber text-xl font-bold text-slate-100 group-hover:text-yellow-300 transition mb-2">
+                  Tarik Tambang Digital
+                </h3>
+                <p class="text-slate-400 text-xs leading-relaxed">
+                  Pertandingan kuis bergantian 2 Tim dengan Countdown Timer 20s! Animasi siswa menarik tali tebal dengan efek LED.
+                </p>
+              </div>
+              <div class="mt-6 flex items-center justify-between pt-4 border-t border-slate-800">
+                <span class="text-xs text-slate-400 font-semibold">Kompetisi 2 Tim</span>
+                <span class="px-4 py-1.5 rounded-lg bg-yellow-500 text-slate-950 font-bold text-xs group-hover:bg-yellow-400 shadow-md transition">
+                  MAIN SEKARANG ▶
+                </span>
+              </div>
+            </div>
+
+            <!-- GAME CARD 5: TTS INFORMATIKA -->
+            <div class="game-selector-card group cursor-pointer relative overflow-hidden rounded-2xl bg-slate-900/90 border-2 border-indigo-500/30 hover:border-indigo-400 p-6 flex flex-col justify-between transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_25px_rgba(99,102,241,0.4)]"
+                 onclick="launchGame('tts')">
+              <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 group-hover:opacity-20 transition">🧩</div>
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <span class="w-14 h-14 rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-3xl shadow-[0_0_15px_rgba(99,102,241,0.3)]">
+                    🧩
+                  </span>
+                  <span class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-bold border border-indigo-500/30">
+                    Dynamic Crossword
+                  </span>
+                </div>
+                <h3 class="font-cyber text-xl font-bold text-slate-100 group-hover:text-indigo-300 transition mb-2">
+                  TTS Informatika
+                </h3>
+                <p class="text-slate-400 text-xs leading-relaxed">
+                  Teka-Teki Silang interaktif tanpa kunci jawaban bocor! Klik soal, ketik kata tebakan, dan verifikasi dengan efek sel hijau / merah shake.
+                </p>
+              </div>
+              <div class="mt-6 flex items-center justify-between pt-4 border-t border-slate-800">
+                <span class="text-xs text-slate-400 font-semibold">Dynamic & Anti-Bocor</span>
+                <span class="px-4 py-1.5 rounded-lg bg-indigo-500 text-white font-bold text-xs group-hover:bg-indigo-400 shadow-md transition">
+                  MAIN SEKARANG ▶
+                </span>
+              </div>
+            </div>
+
+            <!-- DASHBOARD QUICK CARD -->
+            <div class="game-selector-card group cursor-pointer relative overflow-hidden rounded-2xl bg-slate-950/90 border-2 border-slate-800 hover:border-purple-500/50 p-6 flex flex-col justify-between transition-all duration-300 hover:scale-[1.02]"
+                 onclick="openTeacherDashboard('tab-classes')">
+              <div class="flex items-center justify-between mb-4">
+                <span class="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-3xl">
+                  ⚙️
+                </span>
+                <span class="px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 text-xs font-bold">
+                  Panel Guru / Admin
+                </span>
+              </div>
+              <div>
+                <h3 class="font-cyber text-xl font-bold text-slate-200 group-hover:text-purple-300 transition mb-2">
+                  Teacher Dashboard
+                </h3>
+                <p class="text-slate-400 text-xs leading-relaxed">
+                  Kelola profil kelas, daftar nama siswa, bank soal kuis, soal TTS, timer, reset sesi game, dan riwayat skor timestamped secara mandiri.
+                </p>
+              </div>
+              <div class="mt-6 flex items-center justify-between pt-4 border-t border-slate-800">
+                <span class="text-xs text-slate-500 font-semibold">Self-Service CRUD</span>
+                <span class="px-4 py-1.5 rounded-lg bg-slate-800 text-purple-300 font-bold text-xs group-hover:bg-purple-600 group-hover:text-white transition">
+                  BUKA PENGATURAN ⚙️
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
       </section>
 
       <!-- ===================================================================
-           VIEW 2: INTERACTIVE GAME SHOW SCREEN
+           VIEW 2: GAME 1 — SPINNER WHEEL
            =================================================================== -->
-      <section id="view-game" class="view-panel">
-        <div class="game-container">
+      <section id="view-spinner" class="view-panel flex-col gap-6">
+        
+        <div class="flex items-center justify-between bg-slate-900/90 border border-cyan-500/30 rounded-2xl p-4 shadow-lg">
+          <div class="flex items-center gap-3">
+            <button onclick="switchView('view-home')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700">
+              ← Kembali ke Menu
+            </button>
+            <h2 class="font-cyber text-lg font-bold text-cyan-400 hidden sm:block">🎡 SPINNER WHEEL</h2>
+          </div>
 
-          <!-- Game Header Bar -->
-          <div class="game-header-bar">
-            <div class="game-info-pills">
-              <div class="info-pill gold">
-                <span>🔄 Ronde:</span>
-                <span id="game-header-round">1</span>
-              </div>
-              <div class="info-pill cyan">
-                <span>👤 Terpilih:</span>
-                <span id="game-header-played">0/0</span>
-              </div>
-              <div class="info-pill">
-                <span>🏆 Total Skor:</span>
-                <span id="game-header-score">0</span>
-              </div>
+          <div class="flex items-center gap-3 text-xs font-bold">
+            <div class="px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300">
+              🔄 Ronde: <span id="game-header-round">1</span>
+            </div>
+            <div class="px-3 py-1.5 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-300">
+              👤 Terpilih: <span id="game-header-played">0/0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Substage 1: Spin Name -->
+        <div id="stage-spin" class="game-substage flex flex-col items-center justify-center p-8 bg-slate-900/90 border-2 border-cyan-500/30 rounded-3xl text-center gap-6 shadow-2xl">
+          <h2 class="font-cyber text-2xl sm:text-3xl font-extrabold text-cyan-300 tracking-wider">
+            🎡 SIAPA YANG BERMAIN?
+          </h2>
+
+          <div class="w-full max-w-lg py-8 px-6 bg-slate-950 border-2 border-cyan-500/50 rounded-2xl shadow-[0_0_30px_rgba(6,182,212,0.3)] min-h-[120px] flex items-center justify-center">
+            <div id="slot-name-display" class="font-cyber text-3xl sm:text-5xl font-black text-yellow-300 tracking-widest uppercase transition-all">
+              ???
+            </div>
+          </div>
+
+          <button id="btn-spin-name" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-fuchsia-600 hover:from-cyan-400 hover:to-fuchsia-500 font-cyber font-black text-xl text-white shadow-[0_0_25px_rgba(6,182,212,0.6)] active:scale-95 transition">
+            🎡 SPIN NAMA SISWA
+          </button>
+        </div>
+
+        <!-- Substage 2: Transition -->
+        <div id="stage-transition" class="game-substage hidden flex-col items-center justify-center p-10 bg-slate-900/90 border-2 border-fuchsia-500/30 rounded-3xl text-center gap-6">
+          <div class="text-7xl animate-bounce">🎯</div>
+          <h3 class="font-cyber text-3xl font-bold text-slate-100">
+            Siap, <span id="transition-student-name" class="text-yellow-400">...</span>?
+          </h3>
+          <div class="text-cyan-400 font-semibold text-sm animate-pulse">
+            MENCARI SOAL UNTUKMU...
+          </div>
+        </div>
+
+        <!-- Substage 3: Question Display & Teacher Assessment Bar -->
+        <div id="stage-question" class="game-substage hidden flex-col gap-6 bg-slate-900/90 border-2 border-cyan-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl">
+          
+          <div class="flex items-center justify-between flex-wrap gap-3 pb-4 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+              <span id="question-category-tag" class="px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-xs font-bold">
+                Informatika
+              </span>
+              <span id="question-points-tag" class="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold">
+                +10 POIN
+              </span>
             </div>
 
-            <button class="btn-exit-game" onclick="switchView('view-home')">
-              ✕ Keluar Game
+            <!-- Timer -->
+            <div id="game-timer-container" class="flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-800 border border-slate-700">
+              <span class="text-base">⏱️</span>
+              <span id="timer-display" class="font-mono text-xl font-bold text-yellow-400">00:30</span>
+            </div>
+          </div>
+
+          <div>
+            <div id="question-active-player" class="text-xs font-bold text-cyan-400 tracking-wider mb-2">
+              NAMA PESERTA: -
+            </div>
+            <h2 id="question-text-display" class="font-sans text-xl sm:text-3xl font-extrabold text-slate-100 leading-snug">
+              Memuat pertanyaan...
+            </h2>
+          </div>
+
+          <!-- Options Grid -->
+          <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 my-2">
+            <!-- Dynamically rendered -->
+          </div>
+
+          <!-- Teacher Control Assessment Bar -->
+          <div class="flex items-center justify-center gap-4 pt-4 border-t border-slate-800 flex-wrap">
+            <button id="btn-correct-answer" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-white shadow-lg text-sm transition">
+              ✅ BENAR (+Poin)
+            </button>
+            <button id="btn-wrong-answer" class="px-6 py-3 rounded-xl bg-rose-600 hover:bg-rose-500 font-bold text-white shadow-lg text-sm transition">
+              ❌ SALAH (Belum Tepat)
+            </button>
+            <button id="btn-reveal-key" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 font-bold text-white shadow-lg text-sm transition">
+              👁 LIHAT JAWABAN
             </button>
           </div>
+        </div>
 
-          <!-- SUBSTAGE 1: SPIN NAME -->
-          <div id="stage-spin" class="game-stage-card game-substage">
-            <h2 class="stage-title">🎡 SIAPA YANG BERMAIN?</h2>
+        <!-- Substage 4: Result Overlay -->
+        <div id="stage-result" class="game-substage hidden flex-col items-center justify-center p-8 bg-slate-900/90 border-2 border-emerald-500/40 rounded-3xl text-center gap-6">
+          <div id="result-icon" class="text-7xl">🎉</div>
+          <h2 id="result-title" class="font-cyber text-3xl font-black text-emerald-400">JAWABAN BENAR!</h2>
+          <div id="result-score-tag" class="px-4 py-2 rounded-full bg-amber-500/20 text-amber-300 font-bold text-sm border border-amber-500/40">
+            +10 POIN
+          </div>
+          <button id="btn-next-player" class="px-8 py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 font-bold text-slate-950 text-base shadow-xl transition">
+            ➡ LANJUT KE PESERTA BERIKUTNYA
+          </button>
+        </div>
 
-            <div class="slot-machine-box">
-              <div id="slot-name-display" class="slot-name-display">???</div>
-            </div>
+      </section>
 
-            <button id="btn-spin-name" class="btn-spin">
-              🎡 SPIN NAMA
+      <!-- ===================================================================
+           VIEW 3: GAME 2 — MYSTERY BOX
+           =================================================================== -->
+      <section id="view-mystery" class="view-panel flex-col gap-6">
+        
+        <div class="flex items-center justify-between bg-slate-900/90 border border-fuchsia-500/30 rounded-2xl p-4 shadow-lg flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <button onclick="switchView('view-home')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700">
+              ← Kembali ke Menu
+            </button>
+            <h2 class="font-cyber text-lg font-bold text-fuchsia-400">🎁 MYSTERY BOX (24 CARDS)</h2>
+          </div>
+
+          <div class="flex items-center gap-4 text-xs font-bold">
+            <span class="text-slate-300">Terbuka: <strong id="mystery-opened-count" class="text-fuchsia-400">0/24</strong></span>
+            <button onclick="resetMysteryBoxes()" class="px-3 py-1.5 rounded-lg bg-fuchsia-600/30 hover:bg-fuchsia-600/50 text-fuchsia-300 border border-fuchsia-500/40">
+              🔄 Acak / Reset Box
             </button>
           </div>
+        </div>
 
-          <!-- SUBSTAGE 2: TRANSITION TO QUESTION -->
-          <div id="stage-transition" class="game-stage-card game-substage" style="display: none;">
-            <div class="transition-card">
-              <div class="ready-avatar">🎯</div>
-              <div class="ready-name">Siap, <span id="transition-student-name">...</span>?</div>
-              <div class="searching-text">
-                MENCARI SOAL UNTUKMU <span class="loader-dots"><span>.</span><span>.</span><span>.</span></span>
-              </div>
+        <!-- Active Player Bar for Mystery Box -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-bold text-slate-400">GILIRAN SISWA:</span>
+            <select id="mystery-student-select" class="bg-slate-800 text-yellow-300 font-bold text-sm rounded-lg px-3 py-1.5 border border-slate-700">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+          <div class="text-xs text-slate-400">
+            Klik salah satu kotak misteri untuk membuka kejutan!
+          </div>
+        </div>
+
+        <!-- 24 Interactive Flip Box Grid -->
+        <div id="mystery-boxes-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4 my-2">
+          <!-- Dynamically generated 24 cards -->
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           VIEW 4: GAME 3 — ULAR TANGGA LOGIKA (PION ANIMATED STEP-BY-STEP)
+           =================================================================== -->
+      <section id="view-ulartangga" class="view-panel flex-col gap-6">
+        
+        <!-- Header & Dice Controls -->
+        <div class="flex items-center justify-between bg-slate-900/90 border border-emerald-500/30 rounded-2xl p-4 shadow-lg flex-wrap gap-4">
+          <div class="flex items-center gap-3">
+            <button onclick="switchView('view-home')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700">
+              ← Kembali ke Menu
+            </button>
+            <h2 class="font-cyber text-lg font-bold text-emerald-400">🎲 ULAR TANGGA LOGIKA (PION ANIMASI STEP-BY-STEP)</h2>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <!-- Active Turn Indicator -->
+            <div class="text-xs font-bold text-slate-300">
+              Giliran: <span id="ut-active-team-name" class="text-emerald-400 font-extrabold">Tim 1 (🔴 Red)</span>
+            </div>
+
+            <!-- Roll Dice 3D Visual Box -->
+            <div id="dice-3d-box" class="w-10 h-10 rounded-xl bg-slate-950 border border-emerald-500/50 flex items-center justify-center font-cyber font-black text-xl text-yellow-300 shadow">
+              ?
+            </div>
+
+            <!-- Roll Dice Button -->
+            <button id="btn-roll-dice" onclick="rollDiceUlarTangga()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 font-cyber font-extrabold text-sm text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.5)] transition active:scale-95 flex items-center gap-2">
+              🎲 LEMPAR DACU
+            </button>
+          </div>
+        </div>
+
+        <!-- Teams Status Bar -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div id="team-card-0" class="ut-team-card active bg-slate-900 border-2 border-rose-500/60 rounded-xl p-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-rose-500 text-white font-black text-xs flex items-center justify-center shadow">🔴</div>
+            <div>
+              <div class="text-xs font-bold text-rose-400">Tim Red</div>
+              <div class="text-xs text-slate-300 font-semibold">Petak: <strong id="team-pos-0" class="text-white">1</strong></div>
             </div>
           </div>
 
-          <!-- SUBSTAGE 3: QUESTION & TIMER -->
-          <div id="stage-question" class="question-game-card game-substage" style="display: none;">
-            <div class="question-top-bar">
-              <div class="question-meta">
-                <span id="question-category-tag" class="category-tag">Informatika</span>
-                <span id="question-points-tag" class="points-tag">+10 POIN</span>
+          <div id="team-card-1" class="ut-team-card bg-slate-900 border-2 border-cyan-500/60 rounded-xl p-3 flex items-center gap-3 opacity-60">
+            <div class="w-8 h-8 rounded-full bg-cyan-500 text-slate-950 font-black text-xs flex items-center justify-center shadow">🔵</div>
+            <div>
+              <div class="text-xs font-bold text-cyan-400">Tim Blue</div>
+              <div class="text-xs text-slate-300 font-semibold">Petak: <strong id="team-pos-1" class="text-white">1</strong></div>
+            </div>
+          </div>
+
+          <div id="team-card-2" class="ut-team-card bg-slate-900 border-2 border-emerald-500/60 rounded-xl p-3 flex items-center gap-3 opacity-60">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 text-slate-950 font-black text-xs flex items-center justify-center shadow">🟢</div>
+            <div>
+              <div class="text-xs font-bold text-emerald-400">Tim Green</div>
+              <div class="text-xs text-slate-300 font-semibold">Petak: <strong id="team-pos-2" class="text-white">1</strong></div>
+            </div>
+          </div>
+
+          <div id="team-card-3" class="ut-team-card bg-slate-900 border-2 border-yellow-500/60 rounded-xl p-3 flex items-center gap-3 opacity-60">
+            <div class="w-8 h-8 rounded-full bg-yellow-500 text-slate-950 font-black text-xs flex items-center justify-center shadow">🟡</div>
+            <div>
+              <div class="text-xs font-bold text-yellow-400">Tim Yellow</div>
+              <div class="text-xs text-slate-300 font-semibold">Petak: <strong id="team-pos-3" class="text-white">1</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10x10 CSS Grid Board -->
+        <div class="max-w-full max-h-[80vh] aspect-square mx-auto block bg-slate-950 border-4 border-slate-800 rounded-3xl p-3 shadow-2xl overflow-hidden relative">
+          <div id="ular-tangga-board" class="grid grid-cols-10 grid-rows-10 w-full h-full gap-1 sm:gap-1.5">
+            <!-- 100 tiles rendered dynamically -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           VIEW 5: GAME 4 — CYBER TUG OF WAR (20s TIMER & AVATAR PULL)
+           =================================================================== -->
+      <section id="view-tariktambang" class="view-panel flex-col gap-6">
+        
+        <div class="flex items-center justify-between bg-slate-900/90 border border-yellow-500/30 rounded-2xl p-4 shadow-lg flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <button onclick="switchView('view-home')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700">
+              ← Kembali ke Menu
+            </button>
+            <h2 class="font-cyber text-lg font-bold text-yellow-400">🤼‍♂️ TARIK TAMBANG DIGITAL (20s TIMER & AVATAR)</h2>
+          </div>
+
+          <button onclick="resetTarikTambangMatch()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-yellow-300 border border-slate-700">
+            🔄 Restart Pertandingan
+          </button>
+        </div>
+
+        <!-- Setup Panel (Hidden by default for immediate gameplay launch) -->
+        <div id="tt-setup-panel" class="hidden flex-col gap-5 bg-slate-900 border-2 border-cyan-500/30 rounded-3xl p-6 shadow-2xl">
+          <h3 class="font-cyber text-base font-bold text-yellow-300 flex items-center gap-2">
+            ⚙️ SETUP PERTANDINGAN TARIK TAMBANG
+          </h3>
+          <p class="text-xs text-slate-300">Pilih 2 kelompok siswa yang bertanding & tentukan jumlah pemain aktif per tim untuk ronde ini:</p>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-2">
+            <div>
+              <label class="text-xs text-rose-400 font-bold block mb-1">🔴 TIM KIRI (LEFT TEAM)</label>
+              <input type="text" id="tt-team-left-name" value="Tim Alpha" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 font-bold focus:outline-none focus:border-rose-400">
+            </div>
+
+            <div>
+              <label class="text-xs text-cyan-400 font-bold block mb-1">🔵 TIM KANAN (RIGHT TEAM)</label>
+              <input type="text" id="tt-team-right-name" value="Tim Beta" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-100 font-bold focus:outline-none focus:border-cyan-400">
+            </div>
+
+            <div>
+              <label class="text-xs text-yellow-400 font-bold block mb-1">👥 JUMLAH PEMAIN PER TIM</label>
+              <select id="tt-players-count" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-yellow-300 font-bold">
+                <option value="3">3 Pemain / Tim</option>
+                <option value="5" selected>5 Pemain / Tim</option>
+                <option value="8">8 Pemain / Tim</option>
+                <option value="10">10 Pemain / Tim</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="flex justify-center mt-2">
+            <button onclick="startTarikTambangMatch()" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 font-cyber font-black text-sm text-slate-950 shadow-[0_0_20px_rgba(234,179,8,0.5)] transition active:scale-95">
+              🚀 MULAI TANDING TARIK TAMBANG
+            </button>
+          </div>
+        </div>
+
+        <!-- Arena Panel with Flashing LED Border Container & 20s Turn Timer -->
+        <div id="tt-arena-panel" class="hidden flex-col gap-6">
+          
+          <!-- Turn Banner & 20s Timer Indicator -->
+          <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div id="tt-turn-banner" class="flex-1 text-center font-cyber text-lg font-black px-6 py-3 rounded-2xl bg-rose-950/80 border-2 border-rose-500 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.5)]">
+              ⚡ GILIRAN: 🔴 TIM ALPHA
+            </div>
+
+            <div class="px-5 py-3 rounded-2xl bg-slate-900 border-2 border-yellow-500/60 text-yellow-300 font-mono text-xl font-black shadow-[0_0_15px_rgba(234,179,8,0.4)] flex items-center gap-2">
+              <span>⏱️</span>
+              <span id="tt-turn-timer-display">20s</span>
+            </div>
+          </div>
+
+          <!-- Match Visual Arena with LED Border Wrapper & Team Avatars -->
+          <div id="tt-arena-wrapper" class="bg-slate-950 border-4 border-slate-800 rounded-3xl p-6 flex flex-col gap-6 shadow-2xl relative overflow-hidden transition-all duration-300">
+            
+            <!-- Teams Header -->
+            <div class="flex items-center justify-between font-cyber text-sm font-extrabold">
+              <div class="flex items-center gap-3 text-rose-400 bg-rose-950/60 border border-rose-800 px-4 py-2 rounded-2xl">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12" fill="#be123c" stroke="#f43f5e" stroke-width="2"/><path d="M9 18 Q14 22 19 18" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="10" cy="12" r="2" fill="white"/><circle cx="18" cy="12" r="2" fill="white"/><circle cx="10" cy="12" r="1" fill="#1e1b4b"/><circle cx="18" cy="12" r="1" fill="#1e1b4b"/></svg>
+                <div>
+                  <span id="tt-display-left-name">Tim Alpha</span>
+                  <div class="text-[0.65rem] text-slate-400">Skor: <strong id="tt-left-score" class="text-white">0 Poin</strong></div>
+                </div>
               </div>
 
-              <!-- Countdown Timer -->
-              <div id="game-timer-container" class="timer-container">
-                <span class="timer-icon">⏱️</span>
-                <span id="timer-display" class="timer-text">00:30</span>
+              <div class="text-center">
+                <div class="text-xs text-slate-400 font-medium">POSISI BENDERA</div>
+                <div id="tt-step-indicator" class="text-xl font-black text-yellow-400">0 (NETRAL / CENTER)</div>
+              </div>
+
+              <div class="flex items-center gap-3 text-cyan-400 bg-cyan-950/60 border border-cyan-800 px-4 py-2 rounded-2xl">
+                <div class="text-right">
+                  <span id="tt-display-right-name">Tim Beta</span>
+                  <div class="text-[0.65rem] text-slate-400">Skor: <strong id="tt-right-score" class="text-white">0 Poin</strong></div>
+                </div>
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="12" fill="#0e7490" stroke="#06b6d4" stroke-width="2"/><path d="M9 18 Q14 22 19 18" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="10" cy="12" r="2" fill="white"/><circle cx="18" cy="12" r="2" fill="white"/><circle cx="10" cy="12" r="1" fill="#1e1b4b"/><circle cx="18" cy="12" r="1" fill="#1e1b4b"/></svg>
               </div>
             </div>
 
-            <div class="question-body">
-              <div id="question-active-player" class="active-player-banner">
-                NAMA PESERTA: -
+            <!-- Rope & Red Flag Visual Canvas Track with SVG Avatars -->
+            <div class="relative w-full h-40 bg-slate-900/90 rounded-2xl border-2 border-slate-800 flex items-center justify-between px-6 overflow-hidden">
+              
+              <!-- 7 Position Ticks (-3, -2, -1, 0, +1, +2, +3) -->
+              <div class="absolute inset-x-12 top-2 flex justify-between text-[0.65rem] font-bold text-slate-500">
+                <span class="text-rose-500">-3</span>
+                <span>-2</span>
+                <span>-1</span>
+                <span class="text-yellow-400">0</span>
+                <span>+1</span>
+                <span>+2</span>
+                <span class="text-cyan-400">+3</span>
               </div>
-              <h2 id="question-text-display" class="question-text-display">
-                Memuat pertanyaan...
-              </h2>
+
+              <!-- Left Team SVG Avatars -->
+              <div id="tt-left-avatars" class="flex items-center gap-0 z-10 transition-transform duration-300">
+                <svg class="tt-svg-char" width="44" height="72" viewBox="0 0 44 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="22" cy="12" r="10" fill="#fb7185" stroke="#e11d48" stroke-width="2"/>
+                  <rect x="14" y="22" width="16" height="22" rx="4" fill="#be123c"/>
+                  <line x1="8" y1="30" x2="14" y2="36" stroke="#fda4af" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="36" y1="30" x2="30" y2="36" stroke="#fda4af" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="18" y1="44" x2="14" y2="68" stroke="#fda4af" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="26" y1="44" x2="30" y2="68" stroke="#fda4af" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="18" cy="10" r="2" fill="white"/><circle cx="26" cy="10" r="2" fill="white"/>
+                  <circle cx="18" cy="10" r="1" fill="#1e1b4b"/><circle cx="26" cy="10" r="1" fill="#1e1b4b"/>
+                </svg>
+                <svg class="tt-svg-char" width="44" height="72" viewBox="0 0 44 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left:-8px">
+                  <circle cx="22" cy="12" r="10" fill="#f9a8d4" stroke="#ec4899" stroke-width="2"/>
+                  <rect x="14" y="22" width="16" height="22" rx="4" fill="#db2777"/>
+                  <line x1="8" y1="30" x2="14" y2="36" stroke="#fbcfe8" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="36" y1="30" x2="30" y2="36" stroke="#fbcfe8" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="18" y1="44" x2="14" y2="68" stroke="#fbcfe8" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="26" y1="44" x2="30" y2="68" stroke="#fbcfe8" stroke-width="3" stroke-linecap="round"/>
+                  <ellipse cx="22" cy="5" rx="9" ry="4" fill="#7c3aed" opacity="0.5"/>
+                  <circle cx="18" cy="10" r="2" fill="white"/><circle cx="26" cy="10" r="2" fill="white"/>
+                  <circle cx="18" cy="10" r="1" fill="#1e1b4b"/><circle cx="26" cy="10" r="1" fill="#1e1b4b"/>
+                </svg>
+                <svg class="tt-svg-char" width="44" height="72" viewBox="0 0 44 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left:-8px">
+                  <circle cx="22" cy="12" r="10" fill="#fda4af" stroke="#f43f5e" stroke-width="2"/>
+                  <rect x="14" y="22" width="16" height="22" rx="4" fill="#e11d48"/>
+                  <line x1="8" y1="30" x2="14" y2="36" stroke="#fecdd3" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="36" y1="30" x2="30" y2="36" stroke="#fecdd3" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="18" y1="44" x2="14" y2="68" stroke="#fecdd3" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="26" y1="44" x2="30" y2="68" stroke="#fecdd3" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="18" cy="10" r="2" fill="white"/><circle cx="26" cy="10" r="2" fill="white"/>
+                  <circle cx="18" cy="10" r="1" fill="#1e1b4b"/><circle cx="26" cy="10" r="1" fill="#1e1b4b"/>
+                </svg>
+              </div>
+
+              <!-- Thick Cyber Rope Line -->
+              <div class="flex-1 mx-2 h-4 bg-gradient-to-r from-rose-600 via-yellow-500 to-cyan-600 rounded-full shadow-[0_0_15px_rgba(245,158,11,0.5)] relative"></div>
+
+              <!-- Right Team SVG Avatars -->
+              <div id="tt-right-avatars" class="flex items-center gap-0 z-10 transition-transform duration-300">
+                <svg class="tt-svg-char" width="44" height="72" viewBox="0 0 44 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="22" cy="12" r="10" fill="#67e8f9" stroke="#06b6d4" stroke-width="2"/>
+                  <rect x="14" y="22" width="16" height="22" rx="4" fill="#0891b2"/>
+                  <line x1="8" y1="30" x2="14" y2="36" stroke="#a5f3fc" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="36" y1="30" x2="30" y2="36" stroke="#a5f3fc" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="18" y1="44" x2="14" y2="68" stroke="#a5f3fc" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="26" y1="44" x2="30" y2="68" stroke="#a5f3fc" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="18" cy="10" r="2" fill="white"/><circle cx="26" cy="10" r="2" fill="white"/>
+                  <circle cx="18" cy="10" r="1" fill="#1e1b4b"/><circle cx="26" cy="10" r="1" fill="#1e1b4b"/>
+                </svg>
+                <svg class="tt-svg-char" width="44" height="72" viewBox="0 0 44 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left:-8px">
+                  <circle cx="22" cy="12" r="10" fill="#a5f3fc" stroke="#22d3ee" stroke-width="2"/>
+                  <rect x="14" y="22" width="16" height="22" rx="4" fill="#0e7490"/>
+                  <line x1="8" y1="30" x2="14" y2="36" stroke="#cffafe" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="36" y1="30" x2="30" y2="36" stroke="#cffafe" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="18" y1="44" x2="14" y2="68" stroke="#cffafe" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="26" y1="44" x2="30" y2="68" stroke="#cffafe" stroke-width="3" stroke-linecap="round"/>
+                  <ellipse cx="22" cy="5" rx="9" ry="4" fill="#7c3aed" opacity="0.5"/>
+                  <circle cx="18" cy="10" r="2" fill="white"/><circle cx="26" cy="10" r="2" fill="white"/>
+                  <circle cx="18" cy="10" r="1" fill="#1e1b4b"/><circle cx="26" cy="10" r="1" fill="#1e1b4b"/>
+                </svg>
+                <svg class="tt-svg-char" width="44" height="72" viewBox="0 0 44 72" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-left:-8px">
+                  <circle cx="22" cy="12" r="10" fill="#99f6e4" stroke="#14b8a6" stroke-width="2"/>
+                  <rect x="14" y="22" width="16" height="22" rx="4" fill="#0d9488"/>
+                  <line x1="8" y1="30" x2="14" y2="36" stroke="#ccfbf1" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="36" y1="30" x2="30" y2="36" stroke="#ccfbf1" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="18" y1="44" x2="14" y2="68" stroke="#ccfbf1" stroke-width="3" stroke-linecap="round"/>
+                  <line x1="26" y1="44" x2="30" y2="68" stroke="#ccfbf1" stroke-width="3" stroke-linecap="round"/>
+                  <circle cx="18" cy="10" r="2" fill="white"/><circle cx="26" cy="10" r="2" fill="white"/>
+                  <circle cx="18" cy="10" r="1" fill="#1e1b4b"/><circle cx="26" cy="10" r="1" fill="#1e1b4b"/>
+                </svg>
+              </div>
+
+              <!-- Moving Red Flag Node (SVG Vector) -->
+              <div id="tt-rope-flag" class="absolute transition-all duration-500 flex flex-col items-center justify-center -top-2" style="left: 50%;">
+                <svg width="32" height="40" viewBox="0 0 32 40" fill="none" class="filter drop-shadow-[0_0_12px_rgba(244,63,94,0.9)] animate-pulse">
+                  <rect x="2" y="0" width="3" height="40" rx="1.5" fill="#9f1239"/>
+                  <path d="M5 2 L30 8 L5 16 Z" fill="#f43f5e"/>
+                  <path d="M5 4 L26 8.5 L5 14 Z" fill="#fb7185" opacity="0.6"/>
+                </svg>
+              </div>
+
             </div>
 
-            <!-- Options Grid -->
-            <div id="options-grid" class="options-grid">
+            <p class="text-xs text-center text-slate-400 font-medium">
+              Waktu giliran 20 Detik! Jawab benar = Tarik 1 step mendekat (LED Hijau). Kehabisan waktu / Salah = Tarik 1 step lawan (LED Merah).
+            </p>
+          </div>
+
+          <!-- Question Card & 4 Large Clickable Option Cards (NO KUNCI JAWABAN DISPLAYED) -->
+          <div class="bg-slate-900/90 border-2 border-slate-800 rounded-3xl p-6 flex flex-col gap-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <span id="tt-q-category" class="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-300 font-bold text-xs">SOAL TARIK TAMBANG</span>
+              <button onclick="nextTarikTambangQuestion()" class="text-xs text-cyan-400 hover:text-cyan-300 font-bold">🔄 Lewati Soal</button>
+            </div>
+
+            <h3 id="tt-q-text" class="font-sans text-xl sm:text-2xl font-extrabold text-slate-100 leading-snug text-center py-2">
+              Memuat pertanyaan kuis...
+            </h3>
+
+            <!-- 4 Clickable Option Cards (A, B, C, D) -->
+            <div id="tt-q-options" class="grid grid-cols-1 sm:grid-cols-2 gap-4 my-2">
               <!-- Rendered dynamically -->
             </div>
+          </div>
 
-            <!-- Teacher Assessment Bar -->
-            <div class="teacher-action-bar">
-              <button id="btn-correct-answer" class="btn-teacher-correct">
-                ✅ BENAR (+Poin)
-              </button>
-              <button id="btn-wrong-answer" class="btn-teacher-wrong">
-                ❌ SALAH (Belum tepat)
-              </button>
-              <button id="btn-reveal-key" class="btn-reveal-answer">
-                👁 LIHAT JAWABAN
-              </button>
+        </div>
+
+      </section>
+
+      <!-- ===================================================================
+           VIEW 6: GAME 5 — TTS INFORMATIKA (DYNAMIC & LEAK-PROOF CROSSWORD)
+           =================================================================== -->
+      <section id="view-tts" class="view-panel flex-col gap-6">
+        
+        <div class="flex items-center justify-between bg-slate-900/90 border border-indigo-500/30 rounded-2xl p-4 shadow-lg flex-wrap gap-3">
+          <div class="flex items-center gap-3">
+            <button onclick="switchView('view-home')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700">
+              ← Kembali ke Menu
+            </button>
+            <h2 class="font-cyber text-lg font-bold text-indigo-400">🧩 TTS INFORMATIKA (DYNAMIC & ANTI-BOCOR)</h2>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="openModal('modal-edit-tts')" class="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white shadow">
+              ✏️ Kelola Soal TTS (CRUD)
+            </button>
+          </div>
+        </div>
+
+        <!-- Active Clue Input Verification Bar (Anti-Leak Word Check) -->
+        <div id="tts-active-clue-bar" class="bg-slate-900/90 border-2 border-indigo-500/40 rounded-2xl p-4 flex items-center justify-between gap-4 flex-wrap shadow-xl">
+          <div class="flex-1 min-w-[250px]">
+            <span class="text-xs text-indigo-400 font-bold block mb-1">SOAL YANG DIPILIH:</span>
+            <span id="tts-active-clue-text" class="text-sm font-extrabold text-slate-100">Klik salah satu petunjuk soal di kanan...</span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input type="text" id="tts-word-input" placeholder="Ketik kata tebakan siswa..." class="bg-slate-950 border border-slate-700 text-yellow-300 font-bold text-sm rounded-xl px-3 py-2 uppercase focus:outline-none focus:border-indigo-400 font-mono w-48 sm:w-64">
+            <button onclick="verifyTTSWord()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 font-cyber font-bold text-xs text-slate-950 shadow-md transition active:scale-95 flex items-center gap-1.5">
+              ✅ CEK KATA
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Crossword Grid Left (7 cols) -->
+          <div class="lg:col-span-7 bg-slate-950 border-2 border-indigo-500/40 rounded-3xl p-4 sm:p-6 flex flex-col items-center justify-center shadow-2xl overflow-x-auto">
+            <div id="tts-grid-container" class="grid gap-1 bg-slate-900 p-3 rounded-2xl border border-slate-800">
+              <!-- Dynamically generated crossword cells -->
             </div>
           </div>
 
-          <!-- SUBSTAGE 4: RESULT FEEDBACK & NEXT -->
-          <div id="stage-result" class="game-stage-card game-substage" style="display: none;">
-            <div class="result-overlay-card">
-              <div id="result-icon" class="result-icon">🎉</div>
-              <h2 id="result-title" class="result-title correct">JAWABAN BENAR!</h2>
-              <div id="result-score-tag" class="result-score-tag">+10 POIN</div>
-
-              <button id="btn-next-player" class="btn-next-player">
-                ➡ LANJUT KE PESERTA BERIKUTNYA
-              </button>
+          <!-- Clues Right (5 cols) -->
+          <div class="lg:col-span-5 flex flex-col gap-4">
+            
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
+              <h3 class="font-cyber text-sm font-bold text-cyan-400 flex items-center gap-2">
+                ➡️ MENDATAR (ACROSS)
+              </h3>
+              <div id="tts-clues-across" class="flex flex-col gap-2 max-h-56 overflow-y-auto text-xs text-slate-300 pr-2">
+                <!-- Across clues -->
+              </div>
             </div>
+
+            <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
+              <h3 class="font-cyber text-sm font-bold text-fuchsia-400 flex items-center gap-2">
+                ⬇️ MENURUN (DOWN)
+              </h3>
+              <div id="tts-clues-down" class="flex flex-col gap-2 max-h-56 overflow-y-auto text-xs text-slate-300 pr-2">
+                <!-- Down clues -->
+              </div>
+            </div>
+
           </div>
 
         </div>
+
       </section>
 
       <!-- ===================================================================
-           VIEW 3: KELOLA SISWA
+           VIEW 7: PAPAN SKOR / LEADERBOARD
            =================================================================== -->
-      <section id="view-students" class="view-panel">
-        <div class="section-header">
-          <h2 class="section-title">👥 KELOLA SISWA</h2>
-          <div class="header-actions">
-            <button id="btn-open-add-student" class="btn-action primary">
-              + TAMBAH SISWA
+      <section id="view-leaderboard" class="view-panel flex-col gap-6">
+        
+        <div class="flex items-center justify-between bg-slate-900/90 border border-amber-500/30 rounded-2xl p-4 shadow-lg">
+          <div class="flex items-center gap-3">
+            <button onclick="switchView('view-home')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700">
+              ← Kembali ke Menu
             </button>
-            <button class="btn-action" onclick="resetAllTurns()">
-              🔄 RESET GILIRAN
-            </button>
+            <h2 class="font-cyber text-lg font-bold text-amber-400">🏆 PAPAN SKOR & RANKING KELAS</h2>
           </div>
         </div>
 
-        <div class="filter-bar">
-          <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="search-student-input" class="search-input" placeholder="Cari nama siswa...">
-          </div>
-        </div>
-
-        <div id="students-grid" class="cards-grid">
-          <!-- Rendered dynamically -->
-        </div>
-      </section>
-
-      <!-- ===================================================================
-           VIEW 4: BANK SOAL
-           =================================================================== -->
-      <section id="view-questions" class="view-panel">
-        <div class="section-header">
-          <h2 class="section-title">📚 BANK SOAL</h2>
-          <div class="header-actions">
-            <button id="btn-open-add-question" class="btn-action primary">
-              + TAMBAH SOAL
-            </button>
-            <button class="btn-action" onclick="resetQuestionsUsedStatus()">
-              🔄 RESET STATUS SOAL
-            </button>
-          </div>
-        </div>
-
-        <div class="filter-bar">
-          <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="search-question-input" class="search-input" placeholder="Cari isi pertanyaan...">
-          </div>
-          <select id="filter-category-select" class="custom-select">
-            <option value="">Semua Kategori</option>
-          </select>
-        </div>
-
-        <div id="questions-grid" class="cards-grid">
-          <!-- Rendered dynamically -->
-        </div>
-      </section>
-
-      <!-- ===================================================================
-           VIEW 5: PAPAN SKOR / LEADERBOARD
-           =================================================================== -->
-      <section id="view-leaderboard" class="view-panel">
-        <div class="section-header">
-          <h2 class="section-title">🏆 PAPAN SKOR & RANKING</h2>
-        </div>
-
-        <!-- 3D Podium Layout -->
-        <div class="podium-container">
+        <!-- 3D Podium Container -->
+        <div class="flex items-end justify-center gap-4 py-8 px-4">
           <!-- 2nd Place -->
-          <div class="podium-step second">
-            <div class="podium-avatar">🥈</div>
-            <div id="podium-2-name" class="podium-name">-</div>
-            <div id="podium-2-score" class="podium-score">0 Poin</div>
-            <div class="podium-block">2</div>
+          <div class="flex flex-col items-center gap-2 w-28 sm:w-36">
+            <div class="text-3xl">🥈</div>
+            <div id="podium-2-name" class="font-bold text-sm text-slate-200 truncate max-w-full">-</div>
+            <div id="podium-2-score" class="text-xs text-amber-400 font-bold">0 Poin</div>
+            <div class="w-full h-24 bg-gradient-to-t from-slate-800 to-slate-700 rounded-t-2xl border-t-2 border-slate-500 flex items-center justify-center font-cyber font-black text-xl text-slate-400">
+              2
+            </div>
           </div>
 
           <!-- 1st Place -->
-          <div class="podium-step first">
-            <div class="podium-avatar">🥇</div>
-            <div id="podium-1-name" class="podium-name">-</div>
-            <div id="podium-1-score" class="podium-score">0 Poin</div>
-            <div class="podium-block">1</div>
+          <div class="flex flex-col items-center gap-2 w-32 sm:w-44">
+            <div class="text-5xl animate-bounce">🥇</div>
+            <div id="podium-1-name" class="font-cyber font-extrabold text-base text-yellow-300 truncate max-w-full">-</div>
+            <div id="podium-1-score" class="text-sm text-amber-300 font-black">0 Poin</div>
+            <div class="w-full h-36 bg-gradient-to-t from-amber-600 via-amber-500 to-yellow-400 rounded-t-2xl border-t-2 border-yellow-200 flex items-center justify-center font-cyber font-black text-3xl text-slate-950 shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+              1
+            </div>
           </div>
 
           <!-- 3rd Place -->
-          <div class="podium-step third">
-            <div class="podium-avatar">🥉</div>
-            <div id="podium-3-name" class="podium-name">-</div>
-            <div id="podium-3-score" class="podium-score">0 Poin</div>
-            <div class="podium-block">3</div>
+          <div class="flex flex-col items-center gap-2 w-28 sm:w-36">
+            <div class="text-3xl">🥉</div>
+            <div id="podium-3-name" class="font-bold text-sm text-slate-200 truncate max-w-full">-</div>
+            <div id="podium-3-score" class="text-xs text-amber-400 font-bold">0 Poin</div>
+            <div class="w-full h-16 bg-gradient-to-t from-amber-900 to-amber-800 rounded-t-2xl border-t-2 border-amber-700 flex items-center justify-center font-cyber font-black text-lg text-amber-500">
+              3
+            </div>
           </div>
         </div>
 
-        <!-- Full Rankings Table -->
-        <div class="leaderboard-table-card">
-          <div class="table-responsive">
-            <table class="custom-table">
-              <thead>
+        <!-- Leaderboard Table -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="bg-slate-950 font-cyber text-xs uppercase text-slate-400 border-b border-slate-800">
                 <tr>
-                  <th>Rank</th>
-                  <th>Nama Siswa</th>
-                  <th>Total Poin</th>
-                  <th>Benar</th>
-                  <th>Salah</th>
-                  <th>Giliran</th>
-                  <th>Akurasi</th>
+                  <th class="py-3 px-4">Rank</th>
+                  <th class="py-3 px-4">Nama Siswa</th>
+                  <th class="py-3 px-4">Total Poin</th>
+                  <th class="py-3 px-4">Benar</th>
+                  <th class="py-3 px-4">Salah</th>
+                  <th class="py-3 px-4">Giliran</th>
+                  <th class="py-3 px-4">Akurasi</th>
                 </tr>
               </thead>
-              <tbody id="leaderboard-tbody">
+              <tbody id="leaderboard-tbody" class="divide-y divide-slate-800">
                 <!-- Rendered dynamically -->
               </tbody>
             </table>
           </div>
         </div>
-      </section>
 
-      <!-- ===================================================================
-           VIEW 6: PENGATURAN & DATA MANAGEMENT
-           =================================================================== -->
-      <section id="view-settings" class="view-panel">
-        <div class="section-header">
-          <h2 class="section-title">⚙ PENGATURAN APLIKASI</h2>
-        </div>
-
-        <div class="settings-grid">
-          <!-- Permainan -->
-          <div class="settings-group-card">
-            <h3 class="group-title">🎮 Permainan</h3>
-
-            <div class="setting-item">
-              <div class="setting-label">
-                <h4>Durasi Timer Countdown</h4>
-                <p>Waktu menjawab untuk setiap soal</p>
-              </div>
-              <select id="setting-timer-select" class="custom-select">
-                <option value="15">15 Detik</option>
-                <option value="30" selected>30 Detik</option>
-                <option value="45">45 Detik</option>
-                <option value="60">60 Detik</option>
-                <option value="0">Tanpa Timer</option>
-              </select>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-label">
-                <h4>Izinkan Siswa Terpilih Berulang</h4>
-                <p>Siswa yang sudah main dapat terpilih lagi</p>
-              </div>
-              <label class="toggle-switch">
-                <input type="checkbox" id="setting-repeat-student">
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-label">
-                <h4>Izinkan Soal Berulang</h4>
-                <p>Soal yang sudah digunakan dapat muncul lagi</p>
-              </div>
-              <label class="toggle-switch">
-                <input type="checkbox" id="setting-repeat-question">
-                <span class="slider"></span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Suara & Efek -->
-          <div class="settings-group-card">
-            <h3 class="group-title">🔊 Suara & Efek</h3>
-
-            <div class="setting-item">
-              <div class="setting-label">
-                <h4>Efek Suara (Sound Effects)</h4>
-                <p>Aktifkan suara spin, timer, & jawaban</p>
-              </div>
-              <label class="toggle-switch">
-                <input type="checkbox" id="setting-sound-toggle" checked>
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-label">
-                <h4>Volume Suara</h4>
-                <p>Ketinggian suara efek Web Audio</p>
-              </div>
-              <input type="range" id="setting-volume-range" class="volume-slider" min="0" max="100" value="80">
-            </div>
-          </div>
-
-          <!-- Data & File -->
-          <div class="settings-group-card">
-            <h3 class="group-title">💾 Manajemen Data</h3>
-
-            <div class="setting-item">
-              <div class="setting-label">
-                <h4>Export Data (.json)</h4>
-                <p>Simpan data siswa, soal, & skor ke file</p>
-              </div>
-              <button class="btn-action" onclick="exportJSON()">📥 Export JSON</button>
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-label">
-                <h4>Import Data (.json)</h4>
-                <p>Muat kembali data dari file backup</p>
-              </div>
-              <button class="btn-action" onclick="document.getElementById('import-file-input').click()">📤 Import
-                JSON</button>
-              <input type="file" id="import-file-input" accept=".json" style="display: none;"
-                onchange="importJSON(event)">
-            </div>
-
-            <div class="setting-item">
-              <div class="setting-label">
-                <h4>Reset Semua Data</h4>
-                <p>Kembalikan data siswa & soal ke default</p>
-              </div>
-              <button class="btn-action danger" onclick="resetAllDataConfirm()">🗑️ Reset Data</button>
-            </div>
-          </div>
-        </div>
       </section>
 
     </main>
-
   </div>
 
   <!-- ===================================================================
-       MODAL DIALOGS
+       MODAL 1: ADVANCED TEACHER DASHBOARD (Self-Service CRUD & Analytics)
        =================================================================== -->
-
-  <!-- Modal 1: Add/Edit Student -->
-  <div id="modal-student" class="modal-backdrop">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3 id="modal-student-title" class="modal-title">Tambah Siswa Baru</h3>
-        <button class="icon-btn" onclick="closeModal('modal-student')">✕</button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="student-id-input">
-        <div class="form-group">
-          <label class="form-label" for="student-name-input">Nama Siswa</label>
-          <input type="text" id="student-name-input" class="form-input"
-            placeholder="Masukkan nama lengkap / panggilan siswa">
+  <div id="modal-teacher-dashboard" class="modal-backdrop fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="modal-box bg-slate-900 border-2 border-purple-500/40 rounded-3xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-[0_0_40px_rgba(168,85,247,0.3)] overflow-hidden">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-5 bg-slate-950 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">⚙️</span>
+          <div>
+            <h3 class="font-cyber text-lg font-bold text-purple-300">ADMINISTRATION DASHBOARD (CRUD MANDIRI & ANALYTICS)</h3>
+            <p class="text-xs text-slate-400">Kelola profil kelas, daftar siswa, bank soal kuis, soal TTS, dan riwayat skor timestamped</p>
+          </div>
         </div>
+        <button onclick="closeModal('modal-teacher-dashboard')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm flex items-center justify-center transition">
+          ✕
+        </button>
       </div>
-      <div class="modal-footer">
-        <button class="btn-action" onclick="closeModal('modal-student')">Batal</button>
-        <button class="btn-action primary" onclick="saveStudentForm()">Simpan Siswa</button>
+
+      <!-- Tabs Navigation -->
+      <div class="flex items-center bg-slate-950/60 border-b border-slate-800 px-5 gap-2 overflow-x-auto text-xs font-bold">
+        <button class="dash-tab-btn active py-3 px-4 text-purple-400 border-b-2 border-purple-400 transition" onclick="switchDashTab('tab-classes')">
+          🏫 Profil Kelas
+        </button>
+        <button class="dash-tab-btn py-3 px-4 text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition" onclick="switchDashTab('tab-students')">
+          👥 Kelola Siswa
+        </button>
+        <button class="dash-tab-btn py-3 px-4 text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition" onclick="switchDashTab('tab-questions')">
+          📚 Kelola Soal Per Game (5 Game Mode)
+        </button>
+        <button class="dash-tab-btn py-3 px-4 text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition" onclick="switchDashTab('tab-analytics')">
+          📊 Riwayat Skor (Analytics)
+        </button>
+        <button class="dash-tab-btn py-3 px-4 text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition" onclick="switchDashTab('tab-session')">
+          🔄 Sesi & Timer
+        </button>
+        <button class="dash-tab-btn py-3 px-4 text-slate-400 border-b-2 border-transparent hover:text-slate-200 transition" onclick="switchDashTab('tab-settings')">
+          ⚙️ Backup Data
+        </button>
+      </div>
+
+      <!-- Modal Body (Tab Panels) -->
+      <div class="p-6 overflow-y-auto flex-1 flex flex-col gap-6">
+        
+        <!-- TAB 1: KELOLA KELAS -->
+        <div id="tab-classes" class="dash-tab-panel flex flex-col gap-4">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <h4 class="font-cyber text-sm font-bold text-slate-200">Daftar Profil Kelas SMA</h4>
+            <button onclick="openModal('modal-add-class')" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-xs text-white shadow transition">
+              + Tambah Kelas Baru
+            </button>
+          </div>
+
+          <div id="classes-list-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- TAB 2: KELOLA SISWA -->
+        <div id="tab-students" class="dash-tab-panel hidden flex-col gap-4">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div>
+              <h4 class="font-cyber text-sm font-bold text-slate-200">Daftar Siswa: <span id="dash-student-active-class" class="text-yellow-400">Kelas X-A</span></h4>
+              <p class="text-xs text-slate-400" id="dash-students-capacity-label">Total 0 Siswa Terdaftar</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <button onclick="openModal('modal-batch-students')" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-cyan-300 border border-slate-700">
+                📝 Batch Paste Nama
+              </button>
+              <button onclick="openAddStudentModal()" class="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-xs font-bold text-white shadow">
+                + Siswa Single
+              </button>
+            </div>
+          </div>
+
+          <div id="dash-students-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <!-- Dynamically rendered -->
+          </div>
+        </div>
+
+        <!-- TAB 3: CENTRALIZED QUESTION CRUD PER GAME (5 GAME MODES) -->
+        <div id="tab-questions" class="dash-tab-panel hidden flex-col gap-4">
+          
+          <!-- Top Header Bar with Excel Actions -->
+          <div class="flex items-center justify-between flex-wrap gap-3 bg-slate-950/80 border border-slate-800 p-3.5 rounded-2xl">
+            <h4 class="font-cyber text-xs sm:text-sm font-extrabold text-cyan-400 tracking-wider">📚 KELOLA SOAL PER GAME (CENTRALIZED CRUD)</h4>
+            <div class="flex items-center gap-2 flex-wrap">
+              <button onclick="exportExcel()" class="px-3 py-1.5 rounded-xl bg-emerald-900/60 hover:bg-emerald-800/80 text-xs font-bold text-emerald-300 border border-emerald-700 transition">
+                📊 Export Excel (.xlsx)
+              </button>
+              <button onclick="document.getElementById('import-xlsx-input-central').click()" class="px-3 py-1.5 rounded-xl bg-emerald-900/60 hover:bg-emerald-800/80 text-xs font-bold text-emerald-300 border border-emerald-700 transition">
+                📂 Import Excel (.xlsx)
+              </button>
+              <input type="file" id="import-xlsx-input-central" accept=".xlsx" class="hidden" onchange="importExcel(event)">
+              <button onclick="resetGameQuestionsConfirm()" class="px-3 py-1.5 rounded-xl bg-amber-950/60 hover:bg-amber-900/80 text-xs font-bold text-amber-300 border border-amber-800 transition">
+                🔄 Reset Soal Mode Ini
+              </button>
+              <button id="btn-add-question-central" onclick="handleAddQuestionCentral()" class="px-4 py-1.5 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 font-bold text-xs text-white shadow transition">
+                + Tambah Soal
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Game Mode Sub-Tabs Pill Nav -->
+          <div class="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-2xl p-1.5 flex-wrap">
+            <button class="gq-tab-btn active-gq px-3.5 py-2 rounded-xl text-xs font-bold text-cyan-300 bg-cyan-500/20 border border-cyan-500/30 transition" onclick="switchGameQTab('spinner')">🎡 Spinner</button>
+            <button class="gq-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200 transition" onclick="switchGameQTab('tts')">🧩 TTS Crossword</button>
+            <button class="gq-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200 transition" onclick="switchGameQTab('mysteryBox')">🎁 Mystery Box</button>
+            <button class="gq-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200 transition" onclick="switchGameQTab('ularTangga')">🎲 Ular Tangga</button>
+            <button class="gq-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200 transition" onclick="switchGameQTab('tarikTambang')">⚡ Tarik Tambang</button>
+          </div>
+
+          <input type="text" id="dash-search-question" oninput="renderDashQuestions()" placeholder="Cari pertanyaan di game mode ini..." class="bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-slate-200 focus:outline-none focus:border-purple-400">
+
+          <div id="dash-questions-grid" class="grid grid-cols-1 gap-3 max-h-[55vh] overflow-y-auto pr-1">
+            <!-- Dynamically rendered -->
+          </div>
+        </div>
+
+        <!-- TAB 5: RIWAYAT SKOR & ANALYTICS (CLASS-SEGREGATED + TIMESTAMPED) -->
+        <div id="tab-analytics" class="dash-tab-panel hidden flex-col gap-4">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <h4 class="font-cyber text-sm font-bold text-amber-300">📊 Riwayat Hasil Permainan per Kelas</h4>
+            <div class="flex items-center gap-2 flex-wrap">
+              <select id="analytics-class-filter" onchange="renderDashAnalytics()" class="bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-yellow-300 font-bold focus:outline-none focus:border-amber-400">
+                <!-- populated dynamically -->
+              </select>
+              <button onclick="clearAnalyticsLogsConfirm()" class="px-3 py-1.5 rounded-lg bg-rose-950 hover:bg-rose-900 text-xs font-bold text-rose-300 border border-rose-800">
+                🗑️ Hapus Riwayat Kelas Ini
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 rounded-2xl overflow-hidden shadow">
+            <table class="w-full text-left text-xs text-slate-300">
+              <thead class="bg-slate-900 font-cyber text-[0.65rem] uppercase text-amber-400 border-b border-slate-800">
+                <tr>
+                  <th class="py-3 px-4">Timestamp (WIB)</th>
+                  <th class="py-3 px-4">Kelas</th>
+                  <th class="py-3 px-4">Game Mode</th>
+                  <th class="py-3 px-4">Rincian Hasil / Poin</th>
+                </tr>
+              </thead>
+              <tbody id="analytics-tbody" class="divide-y divide-slate-800">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 6: SESI & RESET GAME -->
+        <div id="tab-session" class="dash-tab-panel hidden flex-col gap-4">
+          <div class="bg-slate-950 border border-amber-500/30 rounded-2xl p-5 flex flex-col gap-3">
+            <h4 class="font-cyber text-base font-bold text-amber-400 flex items-center gap-2">
+              🔄 RESET SESI KELAS BARU (SESSION CONTROL)
+            </h4>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Gunakan tombol ini saat jam pelajaran berganti ke kelas baru. Tombol ini akan mereset giliran siswa, posisi Ular Tangga, Tarik Tambang, status Mystery Box, dan skor tanpa menghapus database bank soal atau daftar siswa.
+            </p>
+            <div>
+              <button onclick="resetClassSessionConfirm()" class="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 font-bold text-slate-950 text-sm shadow-lg transition flex items-center gap-2">
+                🔄 REFRESH / RESET SESI KELAS INI
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 7: PENGATURAN & BACKUP -->
+        <div id="tab-settings" class="dash-tab-panel hidden flex-col gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
+              <h4 class="font-cyber text-xs font-bold text-cyan-400">⏱️ Pengaturan Timer & Audio</h4>
+              
+              <div class="flex items-center justify-between text-xs">
+                <span>Durasi Timer Countdown</span>
+                <select id="setting-timer-select" onchange="updateSettingsFromUI()" class="bg-slate-900 border border-slate-700 text-yellow-300 rounded px-2 py-1">
+                  <option value="15">15 Detik</option>
+                  <option value="30">30 Detik</option>
+                  <option value="45">45 Detik</option>
+                  <option value="60">60 Detik</option>
+                  <option value="0">Tanpa Timer</option>
+                </select>
+              </div>
+
+              <div class="flex items-center justify-between text-xs">
+                <span>Efek Suara Audio</span>
+                <input type="checkbox" id="setting-sound-toggle" onchange="updateSettingsFromUI()" class="w-4 h-4 accent-cyan-500">
+              </div>
+            </div>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col gap-3">
+              <h4 class="font-cyber text-xs font-bold text-fuchsia-400">💾 Ekspor & Impor Data</h4>
+              
+              <div class="flex flex-col gap-2">
+                <p class="text-[0.65rem] text-slate-400">Format Excel: ID | Pertanyaan | Opsi A-D | Jawaban | Poin (per sheet game mode)</p>
+                <div class="flex items-center gap-2">
+                  <button onclick="exportExcel()" class="flex-1 py-2 rounded-xl bg-emerald-900/60 hover:bg-emerald-800/80 text-xs font-bold text-emerald-300 border border-emerald-700">
+                    📊 Export Excel (.xlsx)
+                  </button>
+                  <button onclick="document.getElementById('import-xlsx-input').click()" class="flex-1 py-2 rounded-xl bg-emerald-900/60 hover:bg-emerald-800/80 text-xs font-bold text-emerald-300 border border-emerald-700">
+                    📂 Import Excel (.xlsx)
+                  </button>
+                  <input type="file" id="import-xlsx-input" accept=".xlsx" class="hidden" onchange="importExcel(event)">
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="exportJSON()" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-cyan-300 border border-slate-700">
+                    📥 Backup JSON
+                  </button>
+                  <button onclick="document.getElementById('import-file-input').click()" class="flex-1 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-fuchsia-300 border border-slate-700">
+                    📤 Restore JSON
+                  </button>
+                  <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="importJSON(event)">
+                </div>
+              </div>
+
+              <button onclick="resetAllDataConfirm()" class="w-full py-2 rounded-xl bg-rose-950 hover:bg-rose-900 border border-rose-800 text-xs font-bold text-rose-300">
+                🗑️ Reset Total Semua Data ke Default
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 bg-slate-950 border-t border-slate-800 flex justify-end">
+        <button onclick="closeModal('modal-teacher-dashboard')" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300">
+          Tutup Dashboard
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL 2: BATCH INPUT STUDENTS -->
+  <div id="modal-batch-students" class="modal-backdrop fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="modal-box bg-slate-900 border-2 border-cyan-500/40 rounded-3xl w-full max-w-lg p-6 flex flex-col gap-4 shadow-2xl">
+      <h3 class="font-cyber text-base font-bold text-cyan-400">📝 BATCH INPUT NAMA SISWA</h3>
+      <p class="text-xs text-slate-300">Paste/Tuliskan nama-nama siswa (pisahkan per baris baru):</p>
+      <textarea id="batch-students-textarea" rows="8" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-cyan-400 font-mono" placeholder="Andi&#10;Budi&#10;Citra&#10;Dinda"></textarea>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeModal('modal-batch-students')" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Batal</button>
+        <button onclick="saveBatchStudents()" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-xs font-bold text-white">Simpan Daftar Siswa</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal 2: Add/Edit Question -->
-  <div id="modal-question" class="modal-backdrop">
-    <div class="modal-box">
-      <div class="modal-header">
-        <h3 id="modal-question-title" class="modal-title">Tambah Soal Baru</h3>
-        <button class="icon-btn" onclick="closeModal('modal-question')">✕</button>
+  <!-- MODAL 3: ADD/EDIT CLASS -->
+  <div id="modal-add-class" class="modal-backdrop fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="modal-box bg-slate-900 border-2 border-purple-500/40 rounded-3xl w-full max-w-md p-6 flex flex-col gap-4 shadow-2xl">
+      <h3 id="modal-class-title" class="font-cyber text-base font-bold text-purple-400">Tambah Profil Kelas Baru</h3>
+      <input type="hidden" id="class-id-input">
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">Nama Kelas (Contoh: Kelas X-A)</label>
+        <input type="text" id="class-name-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-purple-400" placeholder="Kelas X-A">
       </div>
-      <div class="modal-body">
-        <input type="hidden" id="question-id-input">
-
-        <div class="form-group">
-          <label class="form-label" for="q-text-input">Isi Pertanyaan</label>
-          <textarea id="q-text-input" class="form-textarea" rows="3"
-            placeholder="Tuliskan pertanyaan soal kuis..."></textarea>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-          <div class="form-group">
-            <label class="form-label" for="q-opt-a">Pilihan A</label>
-            <input type="text" id="q-opt-a" class="form-input" placeholder="Jawaban A">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="q-opt-b">Pilihan B</label>
-            <input type="text" id="q-opt-b" class="form-input" placeholder="Jawaban B">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="q-opt-c">Pilihan C</label>
-            <input type="text" id="q-opt-c" class="form-input" placeholder="Jawaban C">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="q-opt-d">Pilihan D</label>
-            <input type="text" id="q-opt-d" class="form-input" placeholder="Jawaban D">
-          </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
-          <div class="form-group">
-            <label class="form-label" for="q-answer-select">Jawaban Benar</label>
-            <select id="q-answer-select" class="custom-select">
-              <option value="A">A</option>
-              <option value="B">B</option>
-              <option value="C">C</option>
-              <option value="D">D</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="q-category-input">Kategori</label>
-            <input type="text" id="q-category-input" class="form-input" value="Informatika">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label" for="q-points-input">Poin</label>
-            <input type="number" id="q-points-input" class="form-input" value="10">
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn-action" onclick="closeModal('modal-question')">Batal</button>
-        <button class="btn-action primary" onclick="saveQuestionForm()">Simpan Soal</button>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeModal('modal-add-class')" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Batal</button>
+        <button onclick="saveClassForm()" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-xs font-bold text-white">Simpan Kelas</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal 3: All Students Played -->
-  <div id="modal-all-played" class="modal-backdrop">
-    <div class="modal-box" style="text-align: center;">
-      <div class="modal-header">
-        <h3 class="modal-title">🎉 Putaran Selesai!</h3>
+  <!-- MODAL 4: ADD/EDIT STUDENT SINGLE -->
+  <div id="modal-student" class="modal-backdrop fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="modal-box bg-slate-900 border-2 border-cyan-500/40 rounded-3xl w-full max-w-md p-6 flex flex-col gap-4 shadow-2xl">
+      <h3 id="modal-student-title" class="font-cyber text-base font-bold text-cyan-400">Tambah Siswa Baru</h3>
+      <input type="hidden" id="student-id-input">
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">Nama Siswa</label>
+        <input type="text" id="student-name-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-cyan-400" placeholder="Nama Lengkap Siswa">
       </div>
-      <div class="modal-body" style="align-items: center;">
-        <div style="font-size: 3.5rem;">🏆</div>
-        <h3>Semua siswa telah mendapat giliran bermain!</h3>
-        <p style="color: var(--text-muted);">Apakah Anda ingin memulai putaran baru dan mereset status giliran seluruh
-          peserta?</p>
+      <div class="flex justify-end gap-2">
+        <button onclick="closeModal('modal-student')" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Batal</button>
+        <button onclick="saveStudentForm()" class="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-xs font-bold text-white">Simpan Siswa</button>
       </div>
-      <div class="modal-footer" style="justify-content: center;">
-        <button class="btn-action" onclick="closeModal('modal-all-played'); switchView('view-home');">↩ KEMBALI TO
-          HOME</button>
-        <button class="btn-action primary" onclick="restartRound()">🔄 MULAI PUTARAN BARU</button>
+    </div>
+  </div>
+
+  <!-- MODAL 5: ADD/EDIT QUESTION -->
+  <div id="modal-question" class="modal-backdrop fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="modal-box bg-slate-900 border-2 border-fuchsia-500/40 rounded-3xl w-full max-w-2xl p-6 flex flex-col gap-4 shadow-2xl">
+      <h3 id="modal-question-title" class="font-cyber text-base font-bold text-fuchsia-400">Tambah Soal Baru</h3>
+      <input type="hidden" id="question-id-input">
+      <input type="hidden" id="q-game-mode-hidden" value="spinner">
+      
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">Isi Pertanyaan Soal</label>
+        <textarea id="q-text-input" rows="3" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-fuchsia-400" placeholder="Tuliskan pertanyaan..."></textarea>
       </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Pilihan A</label>
+          <input type="text" id="q-opt-a" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-slate-200">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Pilihan B</label>
+          <input type="text" id="q-opt-b" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-slate-200">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Pilihan C</label>
+          <input type="text" id="q-opt-c" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-slate-200">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Pilihan D</label>
+          <input type="text" id="q-opt-d" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-slate-200">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Jawaban Benar</label>
+          <select id="q-answer-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-yellow-300 font-bold">
+            <option value="A">A</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Nilai Poin</label>
+          <input type="number" id="q-points-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-slate-200" value="10">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-2">
+        <button onclick="closeModal('modal-question')" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Batal</button>
+        <button onclick="saveQuestionForm()" class="px-4 py-2 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 text-xs font-bold text-white">Simpan Soal</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 6: ADD/EDIT SINGLE TTS CLUE -->
+  <div id="modal-tts-clue" class="modal-backdrop fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="modal-box bg-slate-900 border-2 border-indigo-500/40 rounded-3xl w-full max-w-md p-6 flex flex-col gap-4 shadow-2xl">
+      <h3 id="modal-tts-title" class="font-cyber text-base font-bold text-indigo-400">Tambah Soal TTS Baru</h3>
+      <input type="hidden" id="tts-clue-id-input">
+      
+      <div>
+        <label class="text-xs text-slate-400 block mb-1">Pertanyaan Soal TTS</label>
+        <textarea id="tts-clue-text-input" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-400" placeholder="Teks petunjuk soal..."></textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Kata Jawaban (Kapital)</label>
+          <input type="text" id="tts-answer-text-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-yellow-300 font-bold uppercase" placeholder="MOUSE">
+        </div>
+
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Tipe Soal</label>
+          <select id="tts-type-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-slate-200">
+            <option value="across">Mendatar (Across)</option>
+            <option value="down">Menurun (Down)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Nomor (#)</label>
+          <input type="number" id="tts-num-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-slate-200" value="1">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Row Index (0-9)</label>
+          <input type="number" id="tts-row-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-slate-200" value="1">
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Col Index (0-9)</label>
+          <input type="number" id="tts-col-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-xs text-slate-200" value="1">
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 mt-2">
+        <button onclick="closeModal('modal-tts-clue')" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">Batal</button>
+        <button onclick="saveTTSClueForm()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white">Simpan Soal TTS</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 7: GAME EVENT OVERLAY (Jackpot / Malware / Generic Question) -->
+  <div id="modal-game-event" class="modal-backdrop fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="modal-box bg-slate-900 border-2 border-cyan-500/40 rounded-3xl w-full max-w-xl p-6 flex flex-col items-center text-center gap-4 shadow-2xl">
+      <div id="ge-icon" class="text-6xl animate-bounce">🎁</div>
+      <h3 id="ge-title" class="font-cyber text-2xl font-black text-cyan-300">EVENT CARD</h3>
+      <p id="ge-desc" class="text-sm text-slate-200 font-medium">Description text</p>
+
+      <div id="ge-question-container" class="w-full text-left bg-slate-950 border border-slate-800 rounded-2xl p-4 hidden flex-col gap-3">
+        <div id="ge-question-text" class="text-base font-bold text-slate-100">Memuat soal...</div>
+        <div id="ge-options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+        <div class="flex justify-center gap-3 pt-2">
+          <button onclick="gradeGameEventQuestion(true)" class="px-4 py-2 rounded-xl bg-emerald-600 text-xs font-bold text-white">✅ BENAR</button>
+          <button onclick="gradeGameEventQuestion(false)" class="px-4 py-2 rounded-xl bg-rose-600 text-xs font-bold text-white">❌ SALAH</button>
+        </div>
+      </div>
+
+      <button id="btn-ge-close" onclick="closeModal('modal-game-event')" class="px-6 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs hover:bg-cyan-400 shadow">
+        Lanjutkan
+      </button>
+    </div>
+  </div>
+
+  <!-- Dice Popup Overlay -->
+  <div id="dice-popup-overlay" class="dice-popup-overlay">
+    <div class="flex flex-col items-center gap-4">
+      <div class="font-cyber text-sm font-bold text-emerald-400 tracking-widest uppercase animate-pulse">MELEMPAR DADU...</div>
+      <div id="dice-popup-face" class="dice-popup-face">?</div>
+      <div id="dice-popup-result-label" class="font-cyber text-lg font-black text-yellow-300 opacity-0 transition-opacity duration-300"></div>
     </div>
   </div>
 
